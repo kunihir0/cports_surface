@@ -48,13 +48,9 @@ make_env = {
 
 # Precautionary empty pre_configure to avoid potential upstream script issues
 def pre_configure(self):
-    # This empty function overrides the default pre_configure behavior
-    # to prevent the system script with the faulty self.do(stdout_to_file=...)
-    # from running for this package.
-    # The main kernel patch (e.g., patch-X.Y.Z.xz) should ideally be handled
-    # by cbuild's standard mechanisms if sourced correctly or applied
-    # through other means if necessary (e.g. within prepare() if it were a local file).
     self.log(f"Skipping default pre_configure for {self.pkgname} to avoid potential stdout_to_file error.")
+    self.log(f"Listing contents of {self.chroot_cwd} before configure phase:")
+    self.do("ls", "-alph", self.chroot_cwd)
     pass
 
 # The linux-kernel build style should handle prepare, build, and install.

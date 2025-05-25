@@ -1,0 +1,75 @@
+pkgname = "linux-surface"
+pkgver = "0.0.master"  # Placeholder, update with a date or commit-based scheme
+pkgrel = 0
+archs = ["x86_64"]
+build_style = "linux-kernel"
+configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"] # Assumes files/surface.config exists
+make_dir = "build" # Common for linux-kernel style
+# ZSTD_CLEVEL for module compression, can be adjusted
+make_install_env = {"ZSTD_CLEVEL": "9"}
+
+hostmakedepends = ["base-kernel-devel"] # git, perl, python, xz, etc. are in base-kernel-devel
+depends = ["base-kernel"]
+provides = ["linux"] # Provides a generic "linux"
+
+pkgdesc = "Linux kernel with linux-surface patches (master branch)"
+license = "GPL-2.0-only"
+url = "https://github.com/linux-surface/linux-surface"
+source = f"https://codeload.github.com/linux-surface/linux-surface/zip/refs/heads/master#/{pkgname}-{pkgver}.zip"
+sha256 = "SKIP" # Replace with actual checksum after first fetch
+
+# Options similar to linux-stable, adjust as needed
+options = [
+    "!check",       # Kernel checks are extensive and often not run in packaging
+    "!debug",       # Debug info is typically stripped into a -dbg package
+    "!strip",       # Stripping is handled by cbuild for the main package
+    "!scanrundeps", # Kernel dependencies are usually well-defined or internal
+    "!scanshlibs",  # Kernel doesn't provide shlibs in the typical sense
+    "!lto",         # LTO for kernels can be complex, enable if tested
+    "textrels",     # Some kernel components might have textrels
+    "execstack",    # Potentially needed for some kernel parts
+    "foreignelf",   # e.g., for vdso32
+]
+
+make_env = {
+    "KBUILD_BUILD_HOST": "chimera-linux",
+    "KBUILD_BUILD_USER": pkgname,
+    "HOSTCC": "clang",
+    "CC": "clang",
+    "LD": "ld.lld",
+    "AR": "llvm-ar",
+    "NM": "llvm-nm",
+    "OBJCOPY": "llvm-objcopy",
+    "OBJDUMP": "llvm-objdump",
+}
+
+# Precautionary empty pre_configure to avoid potential upstream script issues
+def pre_configure(self):
+    self.log(f"Skipping default pre_configure for {self.pkgname} to avoid potential stdout_to_file error.")
+    pass
+
+# The linux-kernel build style should handle prepare, build, and install.
+# If specific pre-build source manipulation (beyond standard patching via patches/)
+# or post-install steps are needed, you can define prepare(), build(), install() here.
+
+@subpackage(f"{pkgname}-devel")
+def _(self):
+    self.pkgdesc = f"{pkgdesc} (development files)"
+    self.depends += ["clang", "pahole"] # Common kernel-devel dependencies
+    self.options = ["foreignelf", "execstack", "!scanshlibs"]
+    # The linux-kernel build style should populate these correctly
+    return ["usr/src", f"usr/lib/modules/{pkgver}-r{pkgrel}*/build"]
+
+@subpackage(f"{pkgname}-dbg", self.build_dbg)
+def _(self):
+    self.pkgdesc = f"{pkgdesc} (debug symbols)"
+    self.options = [
+        "!scanrundeps",
+        "!strip", # Don't strip the -dbg package itself
+        "!scanshlibs",
+        "foreignelf",
+        "execstack",
+        "textrels",
+    ]
+    # Paths for debug symbols, System.map might need versioning from KERNELRELEASE
+    return ["usr/lib/debug", f"usr/lib/modules/{pkgver}-r{pkgrel}*/apk-dist/boot/System.map-*"]

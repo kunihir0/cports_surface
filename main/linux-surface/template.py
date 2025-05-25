@@ -1,25 +1,27 @@
 pkgname = "linux-surface"
-# For master branch builds, manually update pkgver to current date (e.g., YYYYMMDD)
-# when you want to package a new snapshot.
-pkgver = "20240524" # MANUALLY UPDATE THIS DATE FOR NEW BUILDS
+# Choose a base vanilla kernel version you want to use
+_base_kernel_ver = "6.14.5"  # EXAMPLE: Replace with a recent stable kernel version matching available Surface patches
+pkgver = _base_kernel_ver   # Your package version will be based on this
 pkgrel = 0
 archs = ["x86_64"]
 build_style = "linux-kernel"
-configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"] # Assumes files/surface.config exists
-make_dir = "build" # Common for linux-kernel style, reinstate
-# ZSTD_CLEVEL for module compression, can be adjusted
+# FLAVOR=surface assumes main/linux-surface/files/surface.config exists
+# Patches from main/linux-surface/patches/ for _base_kernel_ver should be applied by the build style.
+configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"]
+make_dir = "build" # Common for linux-kernel style
 make_install_env = {"ZSTD_CLEVEL": "9"}
 
-hostmakedepends = ["base-kernel-devel"] # git, perl, python, xz, etc. are in base-kernel-devel
+hostmakedepends = ["base-kernel-devel"]
 depends = ["base-kernel"]
-provides = ["linux"] # Provides a generic "linux"
+provides = ["linux"]
 
 pkgdesc = "Linux kernel with linux-surface patches"
-subdesc = "master branch"
+subdesc = f"based on v{_base_kernel_ver}" # Clarify base
 license = "GPL-2.0-only"
-url = "https://github.com/linux-surface/linux-surface"
-source = f"https://codeload.github.com/linux-surface/linux-surface/zip/refs/heads/master#/{pkgname}-{pkgver}.zip"
-sha256 = "SKIP" # Replace with actual checksum after first fetch
+url = "https://github.com/linux-surface/linux-surface" # Upstream patchset URL
+# Source the vanilla kernel tarball
+source = f"https://cdn.kernel.org/pub/linux/kernel/v{_base_kernel_ver[0]}.x/linux-{_base_kernel_ver}.tar.xz#/{pkgname}-base-{_base_kernel_ver}.tar.xz"
+sha256 = "SKIP" # MUST be updated after fetching the vanilla kernel source
 
 # Options similar to linux-stable, adjust as needed
 options = [

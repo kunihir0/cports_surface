@@ -1,6 +1,10 @@
 pkgname = "linux-surface"
-pkgver = "0.0.master"  # Placeholder, update with a date or commit-based scheme
-pkgrel = 0
+# Use a date-based pkgver for master branch builds. Update this when you want to refresh.
+# Example: YYYYMMDD
+import datetime
+current_date = datetime.datetime.now().strftime("%Y%m%d")
+pkgver = current_date
+pkgrel = 0 # Reset to 0 for new pkgver
 archs = ["x86_64"]
 build_style = "linux-kernel"
 configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"] # Assumes files/surface.config exists
@@ -57,8 +61,9 @@ def _(self):
     self.pkgdesc = f"{pkgdesc} (development files)"
     self.depends += ["clang", "pahole"] # Common kernel-devel dependencies
     self.options = ["foreignelf", "execstack", "!scanshlibs"]
-    # The linux-kernel build style should populate these correctly
-    return ["usr/src", f"usr/lib/modules/{pkgver}-r{pkgrel}*/build"]
+    # The linux-kernel build style should populate these correctly.
+    # Using a glob for the kernel release directory is safer.
+    return ["usr/src", "usr/lib/modules/*/build"]
 
 @subpackage(f"{pkgname}-dbg", self.build_dbg)
 def _(self):
@@ -71,5 +76,6 @@ def _(self):
         "execstack",
         "textrels",
     ]
-    # Paths for debug symbols, System.map might need versioning from KERNELRELEASE
-    return ["usr/lib/debug", f"usr/lib/modules/{pkgver}-r{pkgrel}*/apk-dist/boot/System.map-*"]
+    # Paths for debug symbols, System.map might need versioning from KERNELRELEASE.
+    # Using a glob for the kernel release directory is safer.
+    return ["usr/lib/debug", "usr/lib/modules/*/apk-dist/boot/System.map-*"]

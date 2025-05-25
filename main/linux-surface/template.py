@@ -6,7 +6,7 @@ pkgrel = 0
 archs = ["x86_64"]
 build_style = "linux-kernel"
 configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"] # Assumes files/surface.config exists
-make_dir = "build" # Common for linux-kernel style
+# make_dir = "build" # Let the linux-kernel style handle build directory, or build in-tree.
 # ZSTD_CLEVEL for module compression, can be adjusted
 make_install_env = {"ZSTD_CLEVEL": "9"}
 

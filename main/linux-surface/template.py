@@ -16,7 +16,8 @@ hostmakedepends = ["base-kernel-devel"] # git, perl, python, xz, etc. are in bas
 depends = ["base-kernel"]
 provides = ["linux"] # Provides a generic "linux"
 
-pkgdesc = "Linux kernel with linux-surface patches (master branch)"
+pkgdesc = "Linux kernel with linux-surface patches"
+subdesc = "master branch"
 license = "GPL-2.0-only"
 url = "https://github.com/linux-surface/linux-surface"
 source = f"https://codeload.github.com/linux-surface/linux-surface/zip/refs/heads/master#/{pkgname}-{pkgver}.zip"

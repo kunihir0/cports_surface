@@ -58,8 +58,8 @@ def pre_configure(self):
 
 @subpackage(f"{pkgname}-devel")
 def _(self):
-    self.pkgdesc = pkgdesc # Inherits main pkgdesc
-    self.subdesc = "development files"
+    self.pkgdesc = "Linux kernel with linux-surface patches" # Explicitly set
+    self.subdesc = "development files (master branch)"
     self.depends += ["clang", "pahole"] # Common kernel-devel dependencies
     self.options = ["foreignelf", "execstack", "!scanshlibs"]
     # The linux-kernel build style should populate these correctly.
@@ -68,8 +68,8 @@ def _(self):
 
 @subpackage(f"{pkgname}-dbg", self.build_dbg)
 def _(self):
-    self.pkgdesc = pkgdesc # Inherits main pkgdesc
-    self.subdesc = "debug symbols"
+    self.pkgdesc = "Linux kernel with linux-surface patches" # Explicitly set
+    self.subdesc = "debug symbols (master branch)"
     self.options = [
         "!scanrundeps",
         "!strip", # Don't strip the -dbg package itself

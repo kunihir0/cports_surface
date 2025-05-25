@@ -1,10 +1,8 @@
 pkgname = "linux-surface"
-# Use a date-based pkgver for master branch builds. Update this when you want to refresh.
-# Example: YYYYMMDD
-import datetime
-current_date = datetime.datetime.now().strftime("%Y%m%d")
-pkgver = current_date
-pkgrel = 0 # Reset to 0 for new pkgver
+# For master branch builds, manually update pkgver to current date (e.g., YYYYMMDD)
+# when you want to package a new snapshot.
+pkgver = "20240524" # MANUALLY UPDATE THIS DATE FOR NEW BUILDS
+pkgrel = 0
 archs = ["x86_64"]
 build_style = "linux-kernel"
 configure_args = ["FLAVOR=surface", f"RELEASE={pkgrel}"] # Assumes files/surface.config exists
@@ -50,6 +48,12 @@ make_env = {
 
 # Precautionary empty pre_configure to avoid potential upstream script issues
 def pre_configure(self):
+    # This empty function overrides the default pre_configure behavior
+    # to prevent the system script with the faulty self.do(stdout_to_file=...)
+    # from running for this package.
+    # The main kernel patch (e.g., patch-X.Y.Z.xz) should ideally be handled
+    # by cbuild's standard mechanisms if sourced correctly or applied
+    # through other means if necessary (e.g. within prepare() if it were a local file).
     self.log(f"Skipping default pre_configure for {self.pkgname} to avoid potential stdout_to_file error.")
     pass
 
